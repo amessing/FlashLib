@@ -1,6 +1,3 @@
-# FlashLib
-FlashLib is a robotics software development library originaly designed to improve and help FRC teams, but can work on other platforms, specifically Raspberry PI and BeagleBone Black.
-
 # Hardware Abstraction Layer
 Development of a custom Hardware Abstraction Layer (HAL) for Raspberry PI and BeagleBone Black will be done in this orphan branch.
 The result code will replace the use of the Bulldog library for IO.
