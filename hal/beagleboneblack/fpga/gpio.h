@@ -8,7 +8,7 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
-#include "hw_gpio.h"
+#include "hw/hw_gpio.h"
 
 /***********************************************************************\
  * Macros
@@ -44,32 +44,34 @@
  * GPIO base
 \***********************************************************************/
 
-extern void gpio_module_enable(uint8_t base);
-extern void gpio_module_disable(uint8_t base);
-extern void gpio_module_reset(uint8_t base);
+extern void GPIO_module_enable(uint8_t base);
+extern void GPIO_module_disable(uint8_t base);
+extern void GPIO_module_reset(uint8_t base);
 
 /***********************************************************************\
  * GPIO base
 \***********************************************************************/
 
-extern void gpio_dir_set(uint8_t base, uint8_t pin, uint8_t dir);
-extern void gpio_dir_get(uint8_t base, uint8_t pin, uint8_t* dir);
+extern void GPIO_dir_set(uint8_t base, uint8_t pin, uint8_t dir);
+extern uint8_t GPIO_dir_get(uint8_t base, uint8_t pin);
 
-extern void gpio_write(uint8_t base, uint8_t pin, uint8_t value);
-extern void gpio_read(uint8_t base, uint8_t pin, uint8_t* value);
+extern void GPIO_writeDigital(uint8_t base, uint8_t pin, uint8_t value);
+extern uint8_t GPIO_readDigital(uint8_t base, uint8_t pin);
+extern void GPIO_writeAnalog(uint8_t base, uint8_t pin, uint32_t value);
+extern uint32_t GPIO_readAnalog(uint8_t base, uint8_t pin);
 
 /***********************************************************************\
  * GPIO Interrupts
 \***********************************************************************/
 
-extern void gpio_interrupt_enable(uint8_t base, uint8_t pin, uint8_t interrput);
-extern void gpio_interrupt_disable(uint8_t base, uint8_t pin, uint8_t interrput);
+extern void GPIO_interrupt_enable(uint8_t base, uint8_t pin, uint8_t interrput);
+extern void GPIO_interrupt_disable(uint8_t base, uint8_t pin, uint8_t interrput);
 
-extern void gpio_interrupt_trigger(uint8_t base, uint8_t pin, uint8_t interrput);
-extern void gpio_interrupt_clear(uint8_t base, uint8_t pin, uint8_t interrput);
-extern void gpio_interrupt_status(uint8_t base, uint8_t pin, uint8_t interrput, uint8_t* status);
+extern void GPIO_interrupt_trigger(uint8_t base, uint8_t pin, uint8_t interrput);
+extern void GPIO_interrupt_clear(uint8_t base, uint8_t pin, uint8_t interrput);
+extern void GPIO_interrupt_status(uint8_t base, uint8_t pin, uint8_t interrput, uint8_t* status);
 
-extern void gpio_interrupt_getType(uint8_t base, uint8_t pin, uint8_t* type);
-extern void gpio_interrupt_setType(uint8_t base, uint8_t pin, uint8_t type);
+extern uint8_t GPIO_interrupt_getType(uint8_t base, uint8_t pin);
+extern void GPIO_interrupt_setType(uint8_t base, uint8_t pin, uint8_t type);
 
 #endif /* GPIO_H_ */
