@@ -27,10 +27,8 @@ extern void GPIO_module_reset(uint8_t base);
 extern void GPIO_dir_set(uint8_t base, uint8_t pin, uint8_t dir);
 extern uint8_t GPIO_dir_get(uint8_t base, uint8_t pin);
 
-extern void GPIO_writeDigital(uint8_t base, uint8_t pin, uint8_t value);
-extern uint8_t GPIO_readDigital(uint8_t base, uint8_t pin);
-extern void GPIO_writeAnalog(uint8_t base, uint8_t pin, uint32_t value);
-extern uint32_t GPIO_readAnalog(uint8_t base, uint8_t pin);
+extern void GPIO_write(uint8_t base, uint8_t pin, uint32_t value);
+extern uint32_t GPIO_read(uint8_t base, uint8_t pin);
 
 /***********************************************************************\
  * GPIO Interrupts

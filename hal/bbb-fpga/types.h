@@ -13,7 +13,8 @@
 typedef unsigned int uint32_t;
 typedef unsigned char uint8_t;
 
-typedef struct GPIO_handle GPIO_handle;
+typedef struct DIO_handle DIO_handle;
 typedef struct PWM_handle PWM_handle;
+typedef struct ADC_handle ADC_handle;
 
 #endif /* PRU_TYPES_H_ */

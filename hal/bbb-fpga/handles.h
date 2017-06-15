@@ -8,7 +8,7 @@
 #ifndef PRU_HANDLES_H_
 #define PRU_HANDLES_H_
 
-struct GPIO_handle{
+struct DIO_handle{
 	uint8_t base;
 	uint8_t pin;
 	uint8_t type;
@@ -27,7 +27,7 @@ struct PWM_handle{
 	uint32_t time;
 };
 
-struct SPI_handle{
+struct ADC_handle{
 
 };
 

@@ -8,12 +8,16 @@
 #include "pru.h"
 
 
-GPIO_handle* first_gpio_handle;
-PWM_handle* first_pwm_handle;
+DIO_handle* first_dio_handle = 0;
+PWM_handle* first_pwm_handle = 0;
+ADC_handle* first_adc_handle = 0;
 
 uint32_t last_time;
 
 uint32_t* shared_memory = SHARED_MEMORY;
+uint32_t* data_holder = 0;
+
+
 
 /***********************************************************************\
  * PRU utilities
@@ -28,13 +32,13 @@ uint32_t PRU_clock(){
 \***********************************************************************/
 
 void PRU_MEM_write(uint32_t* memaddr, uint32_t data){
-	HWREG(memaddr) = data;
+
 }
 void PRU_MEM_read(uint32_t* memaddr, uint32_t* data){
-	*data = HWREG(memaddr);
+
 }
 void PRU_MEM_clear(uint32_t* memaddr){
-	HWREG(memaddr) = 0;
+
 }
 
 /***********************************************************************\
@@ -49,44 +53,118 @@ void PRU_shutdown(){
 }
 
 void PRU_initializePort(uint8_t base, uint8_t pin, uint8_t type){
-	uint8_t t_type = T_IO_GET(type);
-	uint8_t d_type = T_DIR_GET(type);
-
-	switch(t_type){
-		case TYPE_ANALOG:
-		case TYPE_DIGITAL:
-			PRU_GPIO_initialize(base, pin, t_type, d_type);
+	switch(type){
+		case HANDLE_PWM:
+			PRU_PWM_initialize(base, pin);
 			break;
-		case TYPE_PWM:
-			PRU_PWM_initialize(base, pin, d_type);
+		case HANDLE_DI:
+			PRU_DIO_initialize(base, pin, GPIO_DIR_INPUT);
+			break;
+		case HANDLE_DO:
+			PRU_DIO_initialize(base, pin, GPIO_DIR_OUTPUT);
+			break;
+		case HANDLE_ADC:
+			PRU_ADC_initialize(base, pin);
 			break;
 	}
 }
-void PRU_freePort(uint8_t base, uint8_t pin, uint8_t type){
-	uint8_t t_type = T_IO_GET(type);
-
-	switch(t_type){
-		case TYPE_ANALOG:
-		case TYPE_DIGITAL:
-			PRU_GPIO_free(base, pin, t_type);
-			break;
-		case TYPE_PWM:
-			PRU_PWM_free(base, pin);
+void PRU_initializeBus(uint8_t bus, uint8_t type){
+	switch(type){
+		case HANDLE_SPI:
+			PRU_SPI_initialize(bus);
 			break;
 	}
 }
 
-void PRU_GPIO_initialize(uint8_t base, uint8_t pin, uint8_t t_type, uint8_t d_type){
+
+void PRU_DIO_initialize(uint8_t base, uint8_t pin, uint8_t dir){
+
+}
+void PRU_ADC_initialize(uint8_t base, uint8_t pin){
 
 }
 void PRU_PWM_initialize(uint8_t base, uint8_t pin){
 
 }
 
-void PRU_GPIO_free(uint8_t base, uint8_t pin, uint8_t t_type){
+void PRU_SPI_initialize(uint8_t bus){
+
+}
+
+
+void PRU_freePort(uint8_t base, uint8_t pin, uint8_t type){
+	switch(type){
+		case HANDLE_PWM:
+			PRU_PWM_free(base, pin);
+			break;
+		case HANDLE_DI:
+		case HANDLE_DO:
+			PRU_DIO_free(base, pin);
+			break;
+		case HANDLE_ADC:
+			PRU_ADC_free(base, pin);
+			break;
+	}
+}
+void PRU_freeBus(uint8_t bus, uint8_t type){
+	switch(type){
+		case HANDLE_SPI:
+			PRU_SPI_free(bus);
+			break;
+	}
+}
+
+void PRU_DIO_free(uint8_t base, uint8_t pin){
+
+}
+void PRU_ADC_free(uint8_t base, uint8_t pin){
 
 }
 void PRU_PWM_free(uint8_t base, uint8_t pin){
+
+}
+
+void PRU_SPI_free(uint8_t bus){
+
+}
+
+/***********************************************************************\
+ * PRU settings
+\***********************************************************************/
+
+void PRU_settingsPort(uint8_t base, uint8_t pin, uint8_t type, uint32_t setting){
+	switch(type){
+		case HANDLE_PWM:
+			PRU_PWM_settings(base, pin);
+			break;
+		case HANDLE_DI:
+		case HANDLE_DO:
+			PRU_DIO_settings(base, pin);
+			break;
+		case HANDLE_ADC:
+			PRU_ADC_settings(base, pin);
+			break;
+	}
+}
+void PRU_settingsBus(uint8_t bus, uint8_t type, uint32_t setting){
+	switch(type){
+		case HANDLE_SPI:
+			PRU_SPI_settings(bus);
+			break;
+	}
+}
+
+void PRU_DIO_settings(uint8_t base, uint8_t pin, uint32_t setting){
+
+}
+void PRU_PWM_settings(uint8_t base, uint8_t pin, uint32_t setting){
+
+}
+void PRU_ADC_settings(uint8_t base, uint8_t pin, uint32_t setting){
+
+}
+
+void PRU_SPI_settings(uint8_t bus, uint32_t setting){
 
 }
 
@@ -94,10 +172,17 @@ void PRU_PWM_free(uint8_t base, uint8_t pin){
  * PRU input-output
 \***********************************************************************/
 
-uint8_t PRU_get(uint8_t base, uint8_t pin, uint8_t t_type, uint8_t m_type){
+uint32_t PRU_getPort(uint8_t base, uint8_t pin, uint8_t type){
 	return 0;
 }
-void PRU_set(uint8_t base, uint8_t pin, uint8_t t_type, uint8_t m_type){
+void PRU_setPort(uint8_t base, uint8_t pin, uint8_t type, uint32_t value){
+
+}
+
+void PRU_inPort(uint8_t base, uint8_t pin, uint8_t type, uint8_t spe_type, uint32_t time){
+
+}
+void PRU_outPort(uint8_t base, uint8_t pin, uint8_t type, uint8_t spe_type, uint32_t value, uint32_t time){
 
 }
 
@@ -106,59 +191,27 @@ void PRU_set(uint8_t base, uint8_t pin, uint8_t t_type, uint8_t m_type){
 \***********************************************************************/
 
 void PRU_handle(){
-	uint32_t clock_time = PRU_clock();
-	uint32_t time = clock_time - last_time;
 
-	//iterate over handles
-
-	last_time = clock_time;
 }
 
-GPIO_handle* PRU_GPIO_getHandle(uint8_t handle){
-	return first_gpio_handle + handle;
+DIO_handle* PRU_DIO_getHandle(uint8_t handle){
+	return 0;
+}
+ADC_handle* PRU_ADC_getHandle(uint8_t handle){
+	return 0;
 }
 PWM_handle* PRU_PWM_getHandle(uint8_t handle){
-	return first_pwm_handle + handle;
+	return 0;
 }
 
-void PRU_GPIO_handle(GPIO_handle* handle, uint32_t time){
-	switch(TIO(handle->type)){
-		case TYPE_ANALOG:
-			handle->time -= time;
-			if(handle->time <= 0){
-				GPIO_writeAnalog(handle->base, handle->pin, GPIO_PIN_LOW);
-				free(handle);
-			}
-			break;
-		case TYPE_DIGITAL:
-			if(TDIR(handle->type) == TYPE_OUT){
-				handle->time -= time;
-				if(handle->time <= 0){
-					GPIO_writeDigital(handle->base, handle->pin, GPIO_PIN_LOW);
-					free(handle);
-				}
-			}else{
-				handle->time += time;
-				uint8_t val = GPIO_readDigital(handle->base, handle->pin);
-				if(val != handle->value){
-					//send pulse in value
-				}
-			}
-			break;
-	}
+void PRU_DIO_handle(DIO_handle* handle, uint32_t* time){
+
 }
-void PRU_PWM_handle(PWM_handle* handle, uint32_t time){
-	uint8_t pwm_type = T_PWM_PROGOUT_GET(handle->type);
-	if(pwm_type == PWM_PROGOUT){
-		handle->value += 1;
-		if(handle->value > handle->end_value)
-			handle->type = T_PWM_PROGOUT_SET(handle->type, 0);
-	}
-	handle->time -= time;
-	if(handle->time <= 0){
-		//stop pwm
-		free(handle);
-	}
+void PRU_ADC_handle(ADC_handle* handle, uint32_t* time){
+
+}
+void PRU_PWM_handle(PWM_handle* handle, uint32_t* time){
+
 }
 
 /***********************************************************************\
@@ -166,52 +219,74 @@ void PRU_PWM_handle(PWM_handle* handle, uint32_t time){
 \***********************************************************************/
 
 void PRU_handleHostRequest(uint32_t* status){
-	uint32_t* data_holder;
 	PRU_MEM_read(shared_memory + TYPE_REGISTER, data_holder);
 
-	uint8_t type = (uint8_t)data_holder;
-	uint8_t e_type = T_EXEC_GET(type);
-	uint8_t t_type = T_IO_GET(type);
-	uint8_t d_type = T_DIR_GET(type);
-	uint8_t m_type = T_EXTRA_GET(type);
+	//getting the type of task to execute
+	uint8_t t_type = T_TAG(*data_holder);
+	uint8_t e_type = T_TAK(*data_holder);
+	uint8_t s_type = T_SPE(*data_holder);
 
-	if(T_SYS_GET(type) == TYPE_SYSTEM){
-		if(T_EXEC_GET(type) == TYPE_INIT){
-			PRU_initialize();
-		}else{
-			PRU_shutdown();
-			*status = STATUS_FINISH;
-		}
-	}else{
+	if(t_type == TYPE_SYS){//pru general tasks
+
+	}else if(t_type == TYPE_IO){//io related tasks
 		PRU_MEM_read(shared_memory + HANDLE_REGISTER, data_holder);
-		uint8_t base = H_BASE(*data_holder);
+
+		uint8_t base = H_BAS(*data_holder);
 		uint8_t pin = H_PIN(*data_holder);
+		uint8_t h_type = H_TYP(*data_holder);
 
+		PRU_MEM_read(shared_memory + TIME_REGISTER, data_holder);
+		uint32_t time = *data_holder;
 
-		if(e_type == TYPE_INIT)
-			PRU_initializePort(base, pin, type);
+		switch(e_type){
+			case TYPE_INIT:
+				PRU_initializePort(base, pin, h_type);
+				break;
+			case TYPE_SHUT:
+				PRU_freePort(base, pin, h_type);
+				break;
+			case TYPE_IN:
+				PRU_inPort(base, pin, h_type, s_type, time);
+				break;
+			case TYPE_OUT:
+				PRU_MEM_read(shared_memory + IN_REGISTER, data_holder);
+				uint32_t value = *data_holder;
+				PRU_outPort(base, pin, h_type, s_type, value, time);
+				break;
+			case TYPE_SETTING:
+				PRU_MEM_read(shared_memory + IN_REGISTER, data_holder);
+				uint32_t value = *data_holder;
+				PRU_settingsPort(base, pin, h_type, value);
+				break;
+		}
+	}else if(t_type == TYPE_BUS){//bus related tasks
+		PRU_MEM_read(shared_memory + HANDLE_REGISTER, data_holder);
 
-		else if(e_type == TYPE_CLOSE)
-			PRU_freePort(base, pin, type);
+		uint8_t bus = H_BAS(*data_holder);
+		uint8_t h_type = H_TYP(*data_holder);
 
-		else{
-			uint8_t value = 0;
-
-			if(d_type == TYPE_IN){
-				value = PRU_get(base, pin, t_type, m_type);
-				if(m_type != DIO_PULSEIN)
-					PRU_MEM_write(shared_memory + VALUE_REGISTER, value);
-			}else{
-				PRU_MEM_read(shared_memory + VALUE_REGISTER, data_holder);
-				value = (uint8_t)*data_holder;
-				PRU_set(base, pin, t_type, m_type);
-			}
+		switch(e_type){
+			case TYPE_INIT:
+				PRU_initializeBus(bus, h_type);
+				break;
+			case TYPE_SHUT:
+				PRU_freeBus(bus, h_type);
+				break;
+			case TYPE_SETTING:
+				PRU_MEM_read(shared_memory + IN_REGISTER, data_holder);
+				uint32_t value = *data_holder;
+				PRU_settingsBus(bus, h_type, value);
+				break;
 		}
 	}
+
+	PRU_MEM_clear(shared_memory + TYPE_REGISTER);
+	PRU_MEM_clear(shared_memory + HANDLE_REGISTER);
+	PRU_MEM_clear(shared_memory + IN_REGISTER);
+	PRU_MEM_clear(shared_memory + TIME_REGISTER);
+
+	*data_holder = 0;
 }
-
-
-
 
 
 
