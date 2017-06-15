@@ -1,147 +1,217 @@
 /*
  * pru.c
  *
- *  Created on: Jun 14, 2017
+ *  Created on: Jun 15, 2017
  *      Author: root
  */
 
-
-#include "types.h"
-#include "gpio.h"
-#include "pwm.h"
-#include "handles.h"
-#include "fpga.h"
-
-#define SICR_REGISTER    (0x20024)
-#define INTERRUPT_CLEAR  (21)
-
-void PRU_clearRegisterValue(uint32_t* memaddr);
-void PRU_setRegisterValue(uint32_t* memaddr, uint32_t* value);
-void PRU_getRegisterValue(uint32_t* memaddr, uint32_t* value);
-
-void PRU_addHandle(GPIO_handle* handle);
-void PRU_removeHandle(GPIO_handle* handle, GPIO_handle* pre_handle);
-
-uint32_t PRU_clock();
-
-volatile register uint32_t __R31;
-
-uint32_t* shared_ram = (uint32_t*)SHARED_RAM;
-
-uint32_t* handle_reg = 0;
-uint32_t* type_reg = 0;
-uint32_t* value_reg = 0;
-
-uint8_t finish = 0;
-uint32_t status = 0;
-uint32_t pre_time = 0;
-uint32_t time = 0;
-
-GPIO_handle* first_handle = NULL;
-GPIO_handle* new_handle = NULL;
-GPIO_handle* current_handle = NULL;
-GPIO_handle* temp_current = NULL;
-
-int main(void){
-
-	pre_time = PRU_clock();
-	while(finish == 0){
-
-		if(__R31 & (1 << 30)){//check for host interrupt
-			//get register values
-			PRU_getRegisterValue(shared_ram + HANDLE_REGISTER, handle_reg);
-			PRU_getRegisterValue(shared_ram + VALUE_REGISTER, value_reg);
-			PRU_getRegisterValue(shared_ram + TYPE_REGISTER, type_reg);
-
-			//handle host request
-			new_handle = FPGA_handleHostRequest(*handle_reg, value_reg, *type_reg, &status);
-
-			//update request status to the host
-			PRU_setRegisterValue(shared_ram + STATUS_REGISTER, &status);
-
-			//if host request included getting data, set the data to the register
-			if((status & STATUS_WRITE))
-				PRU_setRegisterValue(shared_ram + VALUE_REGISTER, value_reg);
-			else //otherwise clear register
-				PRU_clearRegisterValue(shared_ram + VALUE_REGISTER);
-
-			//clear used registers
-			PRU_clearRegisterValue(shared_ram + HANDLE_REGISTER);
-			PRU_clearRegisterValue(shared_ram + TYPE_REGISTER);
-
-			//clear interrupt
-			PRU_setRegisterValue(SICR_REGISTER, &INTERRUPT_CLEAR);
+#include "pru.h"
 
 
-			//if finish was requested than report finish
-			if((status & STATUS_FINISH)){
-				finish = 1;
-				break;
-			}
+GPIO_handle* first_gpio_handle;
+PWM_handle* first_pwm_handle;
 
-			//if new gpio handle was added, add it to linked list
-			if(new_handle != NULL)
-				PRU_addHandle(new_handle);
+uint32_t last_time;
 
-			//interrupt host that task was completed
-			__R31 = 35;
-		}
+uint32_t* shared_memory = SHARED_MEMORY;
 
-		time = PRU_clock() - pre_time;
+/***********************************************************************\
+ * PRU utilities
+\***********************************************************************/
 
-		//iterate over the handles linked list and handle them
-		current_handle = first_handle;
-		temp_current = NULL;
-		while(current_handle != NULL){
-			current_handle->time -= time;
-			if(time <= 0)
-				PRU_removeHandle(current_handle, temp_current);
-			else
-				FPGA_handle(current_handle);
-
-			temp_current = current_handle;
-			current_handle = current_handle->next;
-		}
-		pre_time = PRU_clock();
-	}
-
-	//clear all handles
-	current_handle = first_handle;
-	temp_current = NULL;
-	while(current_handle != NULL){
-		temp_current = current_handle;
-		current_handle = current_handle->next;
-		free(temp_current);
-	}
-
-	//interrupt host for shutdown
-	__R31 = 35;
-	//halt pru program
-	__halt();
+uint32_t PRU_clock(){
 	return 0;
 }
 
-void PRU_addHandle(GPIO_handle* handle){
-	GPIO_handle* temp = first_handle;
-	first_handle = handle;
-	handle->next = temp;
-}
-void PRU_removeHandle(GPIO_handle* handle, GPIO_handle* pre_handle){
-	pre_handle->next = handle->next;
-	clear(handle);
-	handle = pre_handle;
-}
+/***********************************************************************\
+ * PRU memory handling
+\***********************************************************************/
 
-void PRU_clearRegisterValue(uint32_t* memaddr){
+void PRU_MEM_write(uint32_t* memaddr, uint32_t data){
+	HWREG(memaddr) = data;
+}
+void PRU_MEM_read(uint32_t* memaddr, uint32_t* data){
+	*data = HWREG(memaddr);
+}
+void PRU_MEM_clear(uint32_t* memaddr){
 	HWREG(memaddr) = 0;
 }
-void PRU_setRegisterValue(uint32_t* memaddr, uint32_t* value){
-	HWREG(memaddr) = &value;
+
+/***********************************************************************\
+ * PRU initialization
+\***********************************************************************/
+
+void PRU_initialize(){
+
 }
-void PRU_getRegisterValue(uint32_t* memaddr, uint32_t* value){
-	*value = HWREG(memaddr);
+void PRU_shutdown(){
+
 }
 
-uint32_t PRU_clock(){
-	return 0;//IMPLEMENT
+void PRU_initializePort(uint8_t base, uint8_t pin, uint8_t type){
+	uint8_t t_type = T_IO_GET(type);
+	uint8_t d_type = T_DIR_GET(type);
+
+	switch(t_type){
+		case TYPE_ANALOG:
+		case TYPE_DIGITAL:
+			PRU_GPIO_initialize(base, pin, t_type, d_type);
+			break;
+		case TYPE_PWM:
+			PRU_PWM_initialize(base, pin, d_type);
+			break;
+	}
 }
+void PRU_freePort(uint8_t base, uint8_t pin, uint8_t type){
+	uint8_t t_type = T_IO_GET(type);
+
+	switch(t_type){
+		case TYPE_ANALOG:
+		case TYPE_DIGITAL:
+			PRU_GPIO_free(base, pin, t_type);
+			break;
+		case TYPE_PWM:
+			PRU_PWM_free(base, pin);
+			break;
+	}
+}
+
+void PRU_GPIO_initialize(uint8_t base, uint8_t pin, uint8_t t_type, uint8_t d_type){
+
+}
+void PRU_PWM_initialize(uint8_t base, uint8_t pin){
+
+}
+
+void PRU_GPIO_free(uint8_t base, uint8_t pin, uint8_t t_type){
+
+}
+void PRU_PWM_free(uint8_t base, uint8_t pin){
+
+}
+
+/***********************************************************************\
+ * PRU input-output
+\***********************************************************************/
+
+uint8_t PRU_get(uint8_t base, uint8_t pin, uint8_t t_type, uint8_t m_type){
+	return 0;
+}
+void PRU_set(uint8_t base, uint8_t pin, uint8_t t_type, uint8_t m_type){
+
+}
+
+/***********************************************************************\
+ * PRU handles
+\***********************************************************************/
+
+void PRU_handle(){
+	uint32_t clock_time = PRU_clock();
+	uint32_t time = clock_time - last_time;
+
+	//iterate over handles
+
+	last_time = clock_time;
+}
+
+GPIO_handle* PRU_GPIO_getHandle(uint8_t handle){
+	return first_gpio_handle + handle;
+}
+PWM_handle* PRU_PWM_getHandle(uint8_t handle){
+	return first_pwm_handle + handle;
+}
+
+void PRU_GPIO_handle(GPIO_handle* handle, uint32_t time){
+	switch(TIO(handle->type)){
+		case TYPE_ANALOG:
+			handle->time -= time;
+			if(handle->time <= 0){
+				GPIO_writeAnalog(handle->base, handle->pin, GPIO_PIN_LOW);
+				free(handle);
+			}
+			break;
+		case TYPE_DIGITAL:
+			if(TDIR(handle->type) == TYPE_OUT){
+				handle->time -= time;
+				if(handle->time <= 0){
+					GPIO_writeDigital(handle->base, handle->pin, GPIO_PIN_LOW);
+					free(handle);
+				}
+			}else{
+				handle->time += time;
+				uint8_t val = GPIO_readDigital(handle->base, handle->pin);
+				if(val != handle->value){
+					//send pulse in value
+				}
+			}
+			break;
+	}
+}
+void PRU_PWM_handle(PWM_handle* handle, uint32_t time){
+	uint8_t pwm_type = T_PWM_PROGOUT_GET(handle->type);
+	if(pwm_type == PWM_PROGOUT){
+		handle->value += 1;
+		if(handle->value > handle->end_value)
+			handle->type = T_PWM_PROGOUT_SET(handle->type, 0);
+	}
+	handle->time -= time;
+	if(handle->time <= 0){
+		//stop pwm
+		free(handle);
+	}
+}
+
+/***********************************************************************\
+ * PRU user interaction
+\***********************************************************************/
+
+void PRU_handleHostRequest(uint32_t* status){
+	uint32_t* data_holder;
+	PRU_MEM_read(shared_memory + TYPE_REGISTER, data_holder);
+
+	uint8_t type = (uint8_t)data_holder;
+	uint8_t e_type = T_EXEC_GET(type);
+	uint8_t t_type = T_IO_GET(type);
+	uint8_t d_type = T_DIR_GET(type);
+	uint8_t m_type = T_EXTRA_GET(type);
+
+	if(T_SYS_GET(type) == TYPE_SYSTEM){
+		if(T_EXEC_GET(type) == TYPE_INIT){
+			PRU_initialize();
+		}else{
+			PRU_shutdown();
+			*status = STATUS_FINISH;
+		}
+	}else{
+		PRU_MEM_read(shared_memory + HANDLE_REGISTER, data_holder);
+		uint8_t base = H_BASE(*data_holder);
+		uint8_t pin = H_PIN(*data_holder);
+
+
+		if(e_type == TYPE_INIT)
+			PRU_initializePort(base, pin, type);
+
+		else if(e_type == TYPE_CLOSE)
+			PRU_freePort(base, pin, type);
+
+		else{
+			uint8_t value = 0;
+
+			if(d_type == TYPE_IN){
+				value = PRU_get(base, pin, t_type, m_type);
+				if(m_type != DIO_PULSEIN)
+					PRU_MEM_write(shared_memory + VALUE_REGISTER, value);
+			}else{
+				PRU_MEM_read(shared_memory + VALUE_REGISTER, data_holder);
+				value = (uint8_t)*data_holder;
+				PRU_set(base, pin, t_type, m_type);
+			}
+		}
+	}
+}
+
+
+
+
+
+
