@@ -18,6 +18,9 @@ extern void HAL_freePWMPort(uint8_t portHandle);
 extern void HAL_setPWMDutyCycle(uint8_t portHandle, float dutyCycle);
 extern float HAL_getPWMDutyCycle(uint8_t portHandle);
 
+extern void HAL_setPWMFrequency(float khz);
+extern float HAL_getPWMFrequency();
+
 extern uint32_t HAL_getPWMLoopTime();
 
 #ifdef __cplusplus

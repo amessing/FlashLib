@@ -23,6 +23,9 @@ extern "C" {
 extern void PRU_initialize(uint32_t* status);
 extern void PRU_shutdown(uint32_t* status);
 
+extern void PRU_disableIO();
+extern void PRU_enableIO();
+
 /***********************************************************************\
  * PRU direct port handling
 \***********************************************************************/
@@ -51,8 +54,9 @@ extern uint32_t PRU_analogRead(uint8_t handle);
 \***********************************************************************/
 
 extern void PRU_pwmSetDuty(uint8_t handle, uint8_t duty);
-extern uint8_t PRU_pwmGetDuty(uint8_t handle);
-extern void PRU_pwmSetFrquency(uint8_t handle, uint32_t frequency);
+extern uint8_t PRU_pwmGetDuty(uint8_t hz);
+
+extern void PRU_pwmSetFrquency(uint8_t handle, uint32_t hz);
 extern uint32_t PRU_pwmGetFrequency(uint8_t handle);
 
 

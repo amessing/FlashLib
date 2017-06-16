@@ -11,7 +11,7 @@
 struct DIO_handle{
 	uint8_t base;
 	uint8_t pin;
-	uint8_t type;
+	uint8_t dir;
 	uint8_t value;
 
 	uint32_t time;
@@ -28,7 +28,8 @@ struct PWM_handle{
 };
 
 struct ADC_handle{
-
+	uint32_t value;
+	uint32_t value_buffer[8];
 };
 
 #endif /* PRU_HANDLES_H_ */

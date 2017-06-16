@@ -10,6 +10,11 @@
 
 #include "handles.h"
 #include "gpio.h"
+#include "adc.h"
+#include "pwm.h"
+
+#include "hw/hw_pru.h"
+#include "hw/hw_types.h"
 
 //memory
 #define SHARED_MEMORY     (0x10000)
@@ -19,6 +24,8 @@
 #define TYPE_REGISTER     (0x4)
 #define TIME_REGISTER     (0x5)
 #define STATUS_REGISTER   (0x10)
+
+#define GPIO_HANDLE_ADDR  (0x100)
 
 //status data
 #define STATUS_FINISH     (0x1)
@@ -34,28 +41,37 @@
 //handle data - buses
 #define HANDLE_SPI        (0x1)
 
+//handle data - devices
+#define HANDLE_COUNTER    (0x1)
+
 //type data
 #define TYPE_INIT         (0x1)
 #define TYPE_SHUT         (0x2)
 #define TYPE_IN           (0x3)
 #define TYPE_OUT          (0x4)
-#define TYPE_SETTING	  (0x5)
+#define TYPE_SETTING_SET  (0x5)
+#define TYPE_SETTING_GET  (0x6)
 //type relation
 #define TYPE_SYS          (0x1)
 #define TYPE_IO           (0x2)
 #define TYPE_BUS	      (0x3)
+#define TYPE_DEV          (0x4)
 
 //conversion macros - handle
-#define H_BAS(h)          (h & 0xf)
-#define H_PIN(h)          ((h >> 4) & 0xf)
-#define H_TYP(h)          ((h >> 8) & 0xf)
-#define H_HAN(b, p, t)    (b | (p << 4) | (t << 8))
+#define H_BAS(h)          (h & 0xff)
+#define H_TYP(h)          ((h >> 8) & 0xff)
+#define H_HAN(b, t)       (b | (t << 8))
 
 //conversion macros - type
 #define T_TAG(t)          (t & 0xf)
 #define T_TAK(t)          ((t >> 4) & 0xf)
 #define T_SPE(t)		  ((t >> 8) & 0xff)
 #define T_TYP(ta, t, s)   (ta | (t << 4) | (s << 8))
+
+
+
+extern volatile uint32_t* shared_memory = 0;
+extern volatile register uint32_t* __R31;
 
 /***********************************************************************\
  * PRU utilities
@@ -78,59 +94,57 @@ extern void PRU_MEM_clear(uint32_t* memaddr);
 extern void PRU_initialize();
 extern void PRU_shutdown();
 
-extern void PRU_initializePort(uint8_t base, uint8_t pin, uint8_t type);
-extern void PRU_initializeBus(uint8_t bus, uint8_t type);
+extern uint8_t PRU_initializePort(uint8_t handle, uint8_t type);
+extern uint8_t PRU_initializeBus(uint8_t handle, uint8_t type);
+extern uint8_t PRU_initializeDev(uint8_t handle, uint8_t type);
 
-extern void PRU_freePort(uint8_t base, uint8_t pin, uint8_t type);
-extern void PRU_freeBus(uint8_t bus, uint8_t type);
+extern void PRU_freePort(uint8_t handle, uint8_t type);
+extern void PRU_freeBus(uint8_t handle, uint8_t type);
+extern void PRU_freeDev(uint8_t handle, uint8_t type);
 
-extern void PRU_DIO_initialize(uint8_t base, uint8_t pin, uint8_t dir);
-extern void PRU_ADC_initialize(uint8_t base, uint8_t pin);
-extern void PRU_PWM_initialize(uint8_t base, uint8_t pin);
-extern void PRU_SPI_initialize(uint8_t bus);
+extern void PRU_DIO_initialize(uint8_t* handle, uint8_t dir);
+extern void PRU_ADC_initialize(uint8_t* handle);
+extern void PRU_PWM_initialize(uint8_t* handle);
 
-extern void PRU_DIO_free(uint8_t base, uint8_t pin);
-extern void PRU_ADC_free(uint8_t base, uint8_t pin);
-extern void PRU_PWM_free(uint8_t base, uint8_t pin);
+extern void PRU_SPI_initialize(uint8_t* handle);
 
-extern void PRU_SPI_free(uint8_t bus);
+extern void PRU_COUNTER_initialize(uint8_t* handle);
+
+extern void PRU_DIO_free(uint8_t* handle);
+extern void PRU_ADC_free(uint8_t* handle);
+extern void PRU_PWM_free(uint8_t* handle);
+
+extern void PRU_SPI_free(uint8_t* handle);
+
+extern void PRU_COUNTER_free(uint8_t* handle);
 
 /***********************************************************************\
  * PRU settings
 \***********************************************************************/
 
-extern void PRU_settingsPort(uint8_t base, uint8_t pin, uint8_t type, uint32_t setting);
-extern void PRU_settingsBus(uint8_t bus, uint8_t type, uint32_t setting);
+extern void PRU_settingsPort(uint8_t handle, uint8_t type, uint8_t dir, uint32_t* setting);
+extern void PRU_settingsBus(uint8_t handle, uint8_t type, uint8_t dir, uint32_t* setting);
+extern void PRU_settingsDev(uint8_t handle, uint8_t type, uint8_t dir, uint32_t* setting);
 
-extern void PRU_DIO_settings(uint8_t base, uint8_t pin, uint32_t setting);
-extern void PRU_PWM_settings(uint8_t base, uint8_t pin, uint32_t setting);
-extern void PRU_ADC_settings(uint8_t base, uint8_t pin, uint32_t setting);
+extern void PRU_DIO_settings(uint8_t handle, uint8_t dir, uint32_t* setting);
+extern void PRU_PWM_settings(uint8_t handle, uint8_t dir, uint32_t* setting);
+extern void PRU_ADC_settings(uint8_t handle, uint8_t dir, uint32_t* setting);
 
-extern void PRU_SPI_settings(uint8_t bus, uint32_t setting);
+extern void PRU_SPI_settings(uint8_t handle, uint8_t dir, uint32_t* setting);
+
+extern void PRU_COUNTER_settings(uint8_t handle, uint8_t dir, uint32_t* setting);
 
 /***********************************************************************\
  * PRU input-output
 \***********************************************************************/
-
-extern uint32_t PRU_getPort(uint8_t base, uint8_t pin, uint8_t type);
-extern void PRU_setPort(uint8_t base, uint8_t pin, uint8_t type, uint32_t value);
-
-extern void PRU_inPort(uint8_t base, uint8_t pin, uint8_t type, uint8_t spe_type, uint32_t time);
-extern void PRU_outPort(uint8_t base, uint8_t pin, uint8_t type, uint8_t spe_type, uint32_t value, uint32_t time);
+extern void PRU_inPort(uint8_t handle, uint8_t type, uint8_t spe_type, uint32_t time);
+extern void PRU_outPort(uint8_t handle, uint8_t type, uint8_t spe_type, uint32_t value, uint32_t time);
 
 /***********************************************************************\
  * PRU handles
 \***********************************************************************/
 
 extern void PRU_handle();
-
-extern DIO_handle* PRU_DIO_getHandle(uint8_t handle);
-extern ADC_handle* PRU_ADC_getHandle(uint8_t handle);
-extern PWM_handle* PRU_PWM_getHandle(uint8_t handle);
-
-extern void PRU_DIO_handle(DIO_handle* handle, uint32_t* time);
-extern void PRU_ADC_handle(ADC_handle* handle, uint32_t* time);
-extern void PRU_PWM_handle(PWM_handle* handle, uint32_t* time);
 
 /***********************************************************************\
  * PRU user interaction
