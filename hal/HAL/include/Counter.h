@@ -5,12 +5,8 @@
  *      Author: root
  */
 
-#ifndef INCLUDE_COUNTER_H_
-#define INCLUDE_COUNTER_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#ifndef COUNTER_H_
+#define COUNTER_H_
 
 /***********************************************************************\
  * Counter initialization
@@ -26,10 +22,5 @@ extern void HAL_freeCounter(uint8_t handle);
 extern void HAL_setCounterMode(uint8_t mode);
 extern uint8_t HAL_getCounterMode();
 
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* INCLUDE_COUNTER_H_ */

@@ -8,9 +8,7 @@
 #ifndef ANALOG_H_
 #define ANALOG_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include <stdint.h>
 
 /***********************************************************************\
  * Analog initialization
@@ -38,9 +36,5 @@ extern uint32_t HAL_getAnalogInputValue(uint8_t portHandle);
 
 extern uint32_t HAL_voltsToValue(uint8_t portHandle, float volts);
 extern float HAL_valueToVolts(uint8_t portHandle, uint32_t value);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* ANALOG_H_ */

@@ -12,7 +12,7 @@
 #define BASE_ADDR(x)      (GPIO_base_get(x))
 
 DIO_handle* start_address;
-uint32_t handles_count = 0;
+uint16_t handles_count = 0;
 
 /***********************************************************************\
  * GPIO base
@@ -42,7 +42,7 @@ void GPIO_initialize(uint32_t* handle_addr){
 	HWREG(CM_WKUP + CM_PER_GPIO3_CLKCTRL) = 0x02 | (1 << 18);
 	HWREG(GPIO3 + GPIO_DEBOUNCINGTIME) = 255;
 
-	start_address = (volatile DIO_handle *)handle_addr;
+	start_address = (DIO_handle *)handle_addr;
 }
 void GPIO_shutdown(){
 
@@ -85,30 +85,5 @@ uint32_t GPIO_read(uint8_t base, uint8_t pin){
 		return GPIO_PIN_HIGH;
 	return GPIO_PIN_LOW;
 }
-
-/***********************************************************************\
- * DIO handles
-\***********************************************************************/
-
-uint8_t DIO_handle_init(uint8_t base, uint8_t pin, uint8_t dir){
-	DIO_handle handle;
-	handle->base = base;
-	handle->pin = pin;
-	handle->dir = dir;
-	handle->time = 0;
-	handle->value = GPIO_PIN_LOW;
-
-	(start_address + handles_count) = handle;
-	handles_count += 1;
-	return (handles_count - 1);
-}
-void DIO_handle_dispose(uint8_t handle){
-
-}
-
-DIO_handle* DIO_handle_get(uint8_t handle){
-	return (start_address + handle);
-}
-
 
 

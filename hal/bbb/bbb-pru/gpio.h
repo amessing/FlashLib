@@ -10,6 +10,7 @@
 
 #include "hw/hw_gpio.h"
 #include "hw/hw_types.h"
+#include "types.h"
 
 #define GPIO_DIR_INPUT    (0x1u)
 #define GPIO_DIR_OUTPUT   (0x0u)
@@ -43,19 +44,10 @@ extern void GPIO_write(uint8_t base, uint8_t pin, uint32_t value);
 extern uint32_t GPIO_read(uint8_t base, uint8_t pin);
 
 /***********************************************************************\
- * DIO handles
-\***********************************************************************/
-
-extern uint8_t DIO_handle_init(uint8_t base, uint8_t pin, uint8_t dir);
-extern void DIO_handle_dispose(uint8_t handle);
-
-extern DIO_handle* DIO_handle_get(uint8_t handle);
-
-/***********************************************************************\
  * GPIO conversion
 \***********************************************************************/
 
-uint32_t GPIO_base_get(uint8_t base){
+unsigned int GPIO_base_get(uint8_t base){
 	switch(base){
 		case 0: return GPIO0;
 		case 1: return GPIO1;

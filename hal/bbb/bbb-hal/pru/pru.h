@@ -8,13 +8,16 @@
 #ifndef PRU_PRU_H_
 #define PRU_PRU_H_
 
-#include "pru_internal.h"
+#define HANDLE_PWM        (0x1)
+#define HANDLE_ADC        (0x2)
+#define HANDLE_DI         (0x3)
+#define HANDLE_DO         (0x4)
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+//handle data - buses
+#define HANDLE_SPI        (0x1)
 
-
+//handle data - devices
+#define HANDLE_COUNTER    (0x1)
 
 /***********************************************************************\
  * PRU initialization
@@ -40,28 +43,23 @@ extern void PRU_freePort(uint8_t handle, uint8_t type);
 extern void PRU_digitalWrite(uint8_t handle, uint8_t val);
 extern uint8_t PRU_digitalRead(uint8_t handle);
 
-extern void PRU_pulseOut(uint8_t handle, uint32_t us);
+extern void PRU_pulseOut(uint8_t handle, uint32_t length);
 extern uint32_t PRU_pulseIn(uint8_t handle);
 
 /***********************************************************************\
  * PRU analog
 \***********************************************************************/
 
-extern uint32_t PRU_analogRead(uint8_t handle);
+extern uint16_t PRU_analogRead(uint8_t handle);
 
 /***********************************************************************\
  * PRU pwm
 \***********************************************************************/
 
 extern void PRU_pwmSetDuty(uint8_t handle, uint8_t duty);
-extern uint8_t PRU_pwmGetDuty(uint8_t hz);
+extern uint8_t PRU_pwmGetDuty(uint8_t handle);
 
-extern void PRU_pwmSetFrquency(uint8_t handle, uint32_t hz);
+extern void PRU_pwmSetFrquency(uint8_t handle, uint32_t frequency);
 extern uint32_t PRU_pwmGetFrequency(uint8_t handle);
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* PRU_PRU_H_ */
