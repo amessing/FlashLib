@@ -28,7 +28,7 @@ typedef struct pru_data pru_data_t;
  * PRU initialization
 \***********************************************************************/
 
-extern pru_data_t* pru_initialize(uint8_t prunum, char* programfile, uint32_t* status);
+extern void pru_initialize(pru_data_t* pru_data, char* programfile, uint32_t* status);
 extern void pru_shutdown(pru_data_t* pru_data, uint32_t* status);
 
 /***********************************************************************\

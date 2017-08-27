@@ -3,6 +3,7 @@
 	<name>bbb-hal</name>
 	<comment></comment>
 	<projects>
+		<project>hal</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

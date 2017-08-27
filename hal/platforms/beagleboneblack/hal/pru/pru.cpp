@@ -32,7 +32,7 @@ std::unordered_map<uint8_t, PWM_handle> pwm_map;
 pthread_t iothread;
 struct thread_data iothread_data;
 
-pru_data_t* pru_data;
+pru_data_t pru_data;
 bool initialized = false;
 
 /***********************************************************************\
@@ -40,7 +40,7 @@ bool initialized = false;
 \***********************************************************************/
 
 void* iothread_function(void* args){
-	uint8_t handle;
+	/*uint8_t handle;
 
 	DIO_handle dio_handle;
 	std::unordered_map<uint8_t, DIO_handle>::iterator dio_it;
@@ -58,7 +58,7 @@ void* iothread_function(void* args){
 
 			++dio_it;
 		}
-	}
+	}*/
 
 	pthread_exit(NULL);
 }
@@ -73,7 +73,8 @@ bool PRU_initialize(uint32_t* status){
 		return true;
 	}
 
-	pru_data = pru_initialize(PRUNUM, PRUNUM, status);
+	pru_data.prunum = PRUNUM;
+	pru_initialize(&pru_data, PRUNUM, status);
 	if(*status){
 		*status = PRU_FAIL;
 		return false;
@@ -101,7 +102,7 @@ bool PRU_shutdown(uint32_t* status){
 		return false;
 	}
 
-	pru_shutdown(PRUNUM, status);
+	pru_shutdown(&pru_data, status);
 	if(*status){
 		*status = PRU_FAIL;
 		return false;
