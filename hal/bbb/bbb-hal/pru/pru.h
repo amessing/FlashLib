@@ -8,23 +8,22 @@
 #ifndef PRU_PRU_H_
 #define PRU_PRU_H_
 
-#define HANDLE_PWM        (0x1)
-#define HANDLE_ADC        (0x2)
-#define HANDLE_DI         (0x3)
-#define HANDLE_DO         (0x4)
+#include <stdint.h>
 
-//handle data - buses
-#define HANDLE_SPI        (0x1)
+#define SUCCESS       (0)
+#define THREAD_FAIL   (1)
+#define PRU_FAIL      (2)
 
-//handle data - devices
-#define HANDLE_COUNTER    (0x1)
+namespace flashlib{
+
+namespace hal{
 
 /***********************************************************************\
  * PRU initialization
 \***********************************************************************/
 
-extern void PRU_initialize(uint32_t* status);
-extern void PRU_shutdown(uint32_t* status);
+extern bool PRU_initialize(uint32_t* status);
+extern bool PRU_shutdown(uint32_t* status);
 
 extern void PRU_disableIO();
 extern void PRU_enableIO();
@@ -56,10 +55,14 @@ extern uint16_t PRU_analogRead(uint8_t handle);
  * PRU pwm
 \***********************************************************************/
 
-extern void PRU_pwmSetDuty(uint8_t handle, uint8_t duty);
-extern uint8_t PRU_pwmGetDuty(uint8_t handle);
+extern void PRU_pwmWrite(uint8_t handle, uint16_t duty);
+extern uint16_t PRU_pwmRead(uint8_t handle);
 
 extern void PRU_pwmSetFrquency(uint8_t handle, uint32_t frequency);
 extern uint32_t PRU_pwmGetFrequency(uint8_t handle);
+
+} /* namespace hal */
+
+} /* namespace flashlib */
 
 #endif /* PRU_PRU_H_ */

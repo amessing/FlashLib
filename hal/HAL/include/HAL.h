@@ -5,13 +5,24 @@
  *      Author: root
  */
 
-#ifndef HAL_H_
-#define HAL_H_
+#ifndef HAL_HAL_H_
+#define HAL_HAL_H_
 
-extern void HAL_initialize(uint32_t* status);
-extern void HAL_shutdown(uint32_t* status);
+#include <stdint.h>
+
+namespace flashlib{
+
+namespace hal{
+
+extern void HAL_initialize(int* status);
+extern void HAL_shutdown(int* status);
 
 extern uint32_t HAL_clockMS();
-extern uint32_t HAL_clockUS();
+
+extern char* HAL_boardName();
+
+} /* namespace hal */
+
+} /* namespace flashlib */
 
 #endif /* INCLUDE_HAL_H_ */

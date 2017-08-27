@@ -6,20 +6,26 @@
  */
 
 #include "DigitalInput.h"
-#include "include/DIO.h"
-#include <stdint.h>
+#include "DIO.h"
+#include "portexception.h"
 
 namespace flashlib {
 
+namespace hal {
+
 DigitalInput::DigitalInput(uint8_t port) {
+	if(!HAL_checkDIOPort(port))
+		throw port_exception(port, HALPort::DigitalInput);
 	handle = HAL_initializeDIOPort(port, GPIO_DIR_INPUT);
 }
 DigitalInput::~DigitalInput() {
 	HAL_freeDIOPort(handle);
 }
 
-uint8_t DigitalInput::get(){
+bool DigitalInput::get(){
 	return HAL_getDIO(handle);
 }
+
+} /* namespace hal */
 
 } /* namespace flashlib */

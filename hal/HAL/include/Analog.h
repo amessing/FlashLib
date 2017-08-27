@@ -5,19 +5,25 @@
  *      Author: root
  */
 
-#ifndef ANALOG_H_
-#define ANALOG_H_
+#ifndef HAL_ANALOG_H_
+#define HAL_ANALOG_H_
 
 #include <stdint.h>
+
+namespace flashlib{
+
+namespace hal{
 
 /***********************************************************************\
  * Analog initialization
 \***********************************************************************/
 
-extern uint8_t HAL_initializeAnalogInputPort(uint8_t portHandle);
+extern bool HAL_checkAnalogInputPort(uint8_t port);
+extern uint8_t HAL_initializeAnalogInputPort(uint8_t port);
 extern void HAL_freeAnalogInputPort(uint8_t portHandle);
 
-extern uint8_t HAL_initializeAnalogOutputPort(uint8_t portHandle);
+extern bool HAL_checkAnalogOutputPort(uint8_t port);
+extern uint8_t HAL_initializeAnalogOutputPort(uint8_t port);
 extern void HAL_freeAnalogOutputPort(uint8_t portHandle);
 
 /***********************************************************************\
@@ -36,5 +42,9 @@ extern uint32_t HAL_getAnalogInputValue(uint8_t portHandle);
 
 extern uint32_t HAL_voltsToValue(uint8_t portHandle, float volts);
 extern float HAL_valueToVolts(uint8_t portHandle, uint32_t value);
+
+} /* namespace hal */
+
+} /* namespace flashlib */
 
 #endif /* ANALOG_H_ */

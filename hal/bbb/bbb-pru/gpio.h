@@ -18,10 +18,6 @@
 #define GPIO_PIN_HIGH     (0x1u)
 #define GPIO_PIN_LOW      (0x0u)
 
-#define DIO_BASE(x)       (x & 0xf)
-#define DIO_PIN(x)        ((x >> 4) & 0xf)
-#define DIO_HANDLE(b, p)  (b | (p << 4))
-
 /***********************************************************************\
  * GPIO base
 \***********************************************************************/

@@ -6,12 +6,16 @@
  */
 
 #include "AnalogInput.h"
-#include "include/Analog.h"
-#include <stdint.h>
+#include "Analog.h"
+#include "portexception.h"
 
 namespace flashlib {
 
+namespace hal {
+
 AnalogInput::AnalogInput(uint8_t port) {
+	if(!HAL_checkAnalogInputPort(port))
+		throw port_exception(port, HALPort::AnalogInput);
 	handle = HAL_initializeAnalogInputPort(port);
 }
 AnalogInput::~AnalogInput() {
@@ -24,5 +28,7 @@ int AnalogInput::getValue(){
 float AnalogInput::getVoltage(){
 	return HAL_getAnalogInputVoltage(handle);
 }
+
+} /* namespace hal */
 
 } /* namespace flashlib */

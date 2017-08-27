@@ -8,6 +8,11 @@
 #ifndef DEFINES_H_
 #define DEFINES_H_
 
+//bbb specs
+#define ADC_COUNT         (6)
+#define PWM_COUNT         (6)
+#define DIO_COUNT         (10)
+
 //memory
 #define SHARED_MEMORY     (0x10000)
 #define HANDLE_REGISTER   (0x1)
@@ -59,5 +64,10 @@
 #define T_TAG(t)          (t & 0xf)
 #define T_TAK(t)          ((t >> 4) & 0xf)
 #define T_TYP(ta, t)      (ta | (t << 4))
+
+//conversion macros - settings
+#define S_TYPE(t)         (t & 0xffff)
+#define S_VAL(t)          ((t >> 16) & 0xffff)
+#define S_DATA(t, v)      (t | (v << 16))
 
 #endif /* DEFINES_H_ */

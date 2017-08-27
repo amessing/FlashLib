@@ -11,24 +11,48 @@
 #include "prussdrv.h"
 #include "pruss_intc_mapping.h"
 
+#include <stdint.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct pru_data{
+	uint8_t prunum;
+	unsigned int* shared_memory;
+};
+
+typedef struct pru_data pru_data_t;
 
 /***********************************************************************\
  * PRU initialization
 \***********************************************************************/
 
-extern void PRU_initialize(uint8_t prunum, uint32_t* status);
-extern void PRU_shutdown(uint8_t prunum, uint32_t* status);
+extern pru_data_t* pru_initialize(uint8_t prunum, char* programfile, uint32_t* status);
+extern void pru_shutdown(pru_data_t* pru_data, uint32_t* status);
 
 /***********************************************************************\
  * PRU memory handle
 \***********************************************************************/
 
-extern uint32_t* PRU_mapMemory(uint8_t prunum);
-extern void PRU_writeMemory(uint32_t* memaddr, uint32_t val);
-extern void PRU_readMemory(uint32_t* memaddr, uint32_t* val);
+extern void pru_mapMemory(pru_data_t* pru_data);
+
+/***********************************************************************\
+ * PRU interrupts
+\***********************************************************************/
+
+extern void pru_waitInterrupt(pru_data_t* pru_data);
+extern void pru_sendInterrupt(pru_data_t* pru_data);
+
+/***********************************************************************\
+ * PRU IO
+\***********************************************************************/
+
+extern void pru_io_write(pru_data_t* pru_data, uint8_t handle, uint8_t type, uint32_t data);
+extern uint32_t pru_io_read(pru_data_t* pru_data, uint8_t handle, uint8_t type);
+
+extern void pru_io_settings_write(pru_data_t* pru_data, uint8_t handle, uint8_t type, uint16_t setting, int16_t value);
+extern int16_t pru_io_settings_read(pru_data_t* pru_data, uint8_t handle, uint8_t type, uint16_t setting);
 
 #ifdef __cplusplus
 }

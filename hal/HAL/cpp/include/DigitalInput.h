@@ -5,20 +5,26 @@
  *      Author: root
  */
 
-#ifndef DIGITALINPUT_H_
-#define DIGITALINPUT_H_
+#ifndef CPP_HAL_DIGITALINPUT_H_
+#define CPP_HAL_DIGITALINPUT_H_
+
+#include <stdint.h>
 
 namespace flashlib {
+
+namespace hal {
 
 class DigitalInput {
 	public:
 		DigitalInput(uint8_t port);
 		~DigitalInput();
 
-		uint8_t get();
+		bool get();
 	private:
 		uint8_t handle;
 };
+
+} /* namespace hal */
 
 } /* namespace flashlib */
 

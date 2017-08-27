@@ -5,10 +5,14 @@
  *      Author: root
  */
 
-#ifndef DIGITALOUTPUT_H_
-#define DIGITALOUTPUT_H_
+#ifndef CPP_HAL_DIGITALOUTPUT_H_
+#define CPP_HAL_DIGITALOUTPUT_H_
+
+#include <stdint.h>
 
 namespace flashlib {
+
+namespace hal {
 
 class DigitalOutput {
 	public:
@@ -20,10 +24,12 @@ class DigitalOutput {
 		void high();
 		void low();
 
-		int get();
+		bool get();
 	private:
 		uint8_t handle;
 };
+
+} /* namespace hal */
 
 } /* namespace flashlib */
 

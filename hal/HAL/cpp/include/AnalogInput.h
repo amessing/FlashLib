@@ -5,10 +5,14 @@
  *      Author: root
  */
 
-#ifndef ANALOGINPUT_H_
-#define ANALOGINPUT_H_
+#ifndef CPP_HAL_ANALOGINPUT_H_
+#define CPP_HAL_ANALOGINPUT_H_
+
+#include <stdint.h>
 
 namespace flashlib {
+
+namespace hal {
 
 class AnalogInput {
 	public:
@@ -20,6 +24,8 @@ class AnalogInput {
 	private:
 		uint8_t handle;
 };
+
+} /* namespace hal */
 
 } /* namespace flashlib */
 

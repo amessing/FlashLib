@@ -6,12 +6,16 @@
  */
 
 #include "DigitalOutput.h"
-#include "include/DIO.h"
-#include <stdint.h>
+#include "DIO.h"
+#include "portexception.h"
 
 namespace flashlib {
 
+namespace hal {
+
 DigitalOutput::DigitalOutput(uint8_t port) {
+	if(!HAL_checkDIOPort(port))
+		throw port_exception(port, HALPort::DigitalOutput);
 	handle = HAL_initializeDIOPort(port, GPIO_DIR_OUTPUT);
 }
 DigitalOutput::~DigitalOutput() {
@@ -31,8 +35,10 @@ void DigitalOutput::low(){
 	HAL_setDIO(handle, GPIO_PIN_LOW);
 }
 
-int DigitalOutput::get(){
+bool DigitalOutput::get(){
 	return HAL_getDIO(handle);
 }
+
+} /* namespace hal */
 
 } /* namespace flashlib */
