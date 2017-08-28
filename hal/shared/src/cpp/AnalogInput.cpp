@@ -5,9 +5,9 @@
  *      Author: root
  */
 
-#include "AnalogInput.h"
+#include "cpp/AnalogInput.h"
 #include "Analog.h"
-#include "portexception.h"
+#include "cpp/portexception.h"
 
 namespace flashlib {
 

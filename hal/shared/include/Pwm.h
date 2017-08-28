@@ -1,32 +1,33 @@
 /*
- * Pwm.h
+ * PWM.h
  *
- *  Created on: Jun 19, 2017
+ *  Created on: Aug 27, 2017
  *      Author: root
  */
 
-#ifndef CPP_HAL_PWM_H_
-#define CPP_HAL_PWM_H_
+#ifndef HAL_PWM_H_
+#define HAL_PWM_H_
 
 #include <stdint.h>
 
-namespace flashlib {
+namespace flashlib{
 
-namespace hal {
+namespace hal{
 
-class Pwm {
-	public:
-		Pwm(uint8_t port);
-		~Pwm();
+extern bool HAL_checkPWMPort(uint8_t port);
+extern uint8_t HAL_initializePWMPort(uint8_t port);
+extern void HAL_freePWMPort(uint8_t portHandle);
 
-		float getDuty();
-		int getValue();
+extern void HAL_setPWMDutyCycle(uint8_t portHandle, float dutyCycle);
+extern float HAL_getPWMDutyCycle(uint8_t portHandle);
 
-		void setDuty(float duty);
-		void setValue(int value);
-	private:
-		uint8_t handle;
-};
+extern void HAL_setPWMValue(uint8_t portHandle, int value);
+extern int HAL_getPWMValue(uint8_t portHandle);
+
+extern void HAL_setPWMFrequency(uint8_t portHandle, float frequency);
+extern float HAL_getPWMFrequency(uint8_t portHandle);
+
+extern uint32_t HAL_getPWMLoopTime();
 
 } /* namespace hal */
 

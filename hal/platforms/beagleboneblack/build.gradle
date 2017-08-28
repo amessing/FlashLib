@@ -1,0 +1,39 @@
+apply plugin: 'cpp'
+
+model{
+	repositories {
+		libs (PrebuiltLibraries){ 
+			test{
+				headers.srcDir "../../shared/include"
+				
+				binaries.withType(StaticLibraryBinary) {
+					staticLibraryFile = file("../../shared/build/flashlib_hal_base/static/"+findStaticLib(targetPlatform))
+				}
+			}
+		}
+	}
+	components {
+        flashlib_hal(NativeLibrarySpec) {
+			sources {
+				cpp {
+					source {
+						srcDir "src"
+						include "**/*.cpp"
+					}
+					exportedHeaders {
+						srcDir "include"
+					}
+					lib library: 'flashlib_hal_base', linkage: 'static'
+				}
+			}
+		}
+    }
+}
+
+def findStaticLib(Platform p) {
+    if (p.operatingSystem.windows) {
+        return "flashlib_hal_base.lib"
+    } else {
+        return "libflashlib_hal_base.a"
+    }
+}

@@ -5,9 +5,9 @@
  *      Author: root
  */
 
-#include "DigitalInput.h"
+#include "cpp/DigitalInput.h"
 #include "DIO.h"
-#include "portexception.h"
+#include "cpp/portexception.h"
 
 namespace flashlib {
 
