@@ -18,30 +18,30 @@ namespace hal{
  * Analog initialization
 \***********************************************************************/
 
-extern bool HAL_checkAnalogInputPort(uint8_t port);
-extern uint8_t HAL_initializeAnalogInputPort(uint8_t port);
-extern void HAL_freeAnalogInputPort(uint8_t portHandle);
+bool HAL_checkAnalogInputPort(uint8_t port);
+uint8_t HAL_initializeAnalogInputPort(uint8_t port);
+void HAL_freeAnalogInputPort(uint8_t portHandle);
 
-extern bool HAL_checkAnalogOutputPort(uint8_t port);
-extern uint8_t HAL_initializeAnalogOutputPort(uint8_t port);
-extern void HAL_freeAnalogOutputPort(uint8_t portHandle);
+bool HAL_checkAnalogOutputPort(uint8_t port);
+uint8_t HAL_initializeAnalogOutputPort(uint8_t port);
+void HAL_freeAnalogOutputPort(uint8_t portHandle);
 
 /***********************************************************************\
  * Analog data io
 \***********************************************************************/
 
-extern void HAL_setAnalogOutputValue(uint8_t portHandle, uint32_t value);
-extern void HAL_setAnalogOutputVoltage(uint8_t portHandle, float volts);
+void HAL_setAnalogOutputValue(uint8_t portHandle, uint32_t value);
+void HAL_setAnalogOutputVoltage(uint8_t portHandle, float volts);
 
-extern float HAL_getAnalogInputVoltage(uint8_t portHandle);
-extern uint32_t HAL_getAnalogInputValue(uint8_t portHandle);
+float HAL_getAnalogInputVoltage(uint8_t portHandle);
+uint32_t HAL_getAnalogInputValue(uint8_t portHandle);
 
 /***********************************************************************\
  * Analog data conversion
 \***********************************************************************/
 
-extern uint32_t HAL_voltsToValue(uint8_t portHandle, float volts);
-extern float HAL_valueToVolts(uint8_t portHandle, uint32_t value);
+uint32_t HAL_voltsToValue(uint8_t portHandle, float volts);
+float HAL_valueToVolts(uint8_t portHandle, uint32_t value);
 
 } /* namespace hal */
 

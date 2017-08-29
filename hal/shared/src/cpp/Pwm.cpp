@@ -5,8 +5,8 @@
  *      Author: root
  */
 
+#include <PWM.h>
 #include "cpp/Pwm.h"
-#include "PWM.h"
 #include "cpp/portexception.h"
 
 namespace flashlib {

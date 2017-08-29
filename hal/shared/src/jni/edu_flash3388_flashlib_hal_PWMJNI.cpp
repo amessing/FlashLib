@@ -6,8 +6,8 @@
  */
 
 #include <jni.h>
-#include "PWM.h"
 #include "edu_flash3388_flashlib_hal_PWMJNI.h"
+#include <PWM.h>
 
 using namespace flashlib::hal;
 
@@ -21,7 +21,11 @@ extern "C" {
  * Signature: (I)Z
  */
 JNIEXPORT jboolean JNICALL Java_edu_flash3388_flashlib_hal_PWMJNI_checkPortPwm
-  (JNIEnv *env, jclass thisObj, jint port);
+  (JNIEnv *env, jclass thisObj, jint port){
+	if(HAL_checkPWMPort(port))
+		return 1;
+	return 0;
+}
 
 /*
  * Class:     edu_flash3388_flashlib_hal_PWMJNI
@@ -29,7 +33,9 @@ JNIEXPORT jboolean JNICALL Java_edu_flash3388_flashlib_hal_PWMJNI_checkPortPwm
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_edu_flash3388_flashlib_hal_PWMJNI_initializePwm
-  (JNIEnv *env, jclass thisObj, jint port);
+  (JNIEnv *env, jclass thisObj, jint port){
+	return HAL_initializePWMPort(port);
+}
 
 /*
  * Class:     edu_flash3388_flashlib_hal_PWMJNI

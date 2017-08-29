@@ -14,12 +14,12 @@ namespace flashlib{
 
 namespace hal{
 
-extern void HAL_initialize(int* status);
-extern void HAL_shutdown(int* status);
+void HAL_initialize(int* status);
+void HAL_shutdown(int* status);
 
-extern uint32_t HAL_clockMS();
+uint32_t HAL_clockMS();
 
-extern char* HAL_boardName();
+char* HAL_boardName();
 
 } /* namespace hal */
 

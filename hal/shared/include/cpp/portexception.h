@@ -10,25 +10,22 @@
 
 #include <stdexcept>
 #include <stdint.h>
+#include "haltypes.h"
 
 namespace flashlib {
 
 namespace hal {
 
-enum HALPort{
-	AnalogInput, AnalogOutput, DigitalInput, DigitalOutput, PWM
-};
-
 class port_exception : public std::runtime_error{
 	public:
-		port_exception(uint8_t port, enum HALPort type);
+		port_exception(uint8_t port, HALPort type);
 
 		uint8_t port();
-		enum HALPort type();
+		HALPort type();
 
 	private:
 		uint8_t eport;
-		enum HALPort etype;
+		HALPort etype;
 };
 
 } /* namespace hal */

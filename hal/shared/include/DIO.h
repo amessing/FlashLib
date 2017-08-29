@@ -24,17 +24,17 @@ namespace hal{
  * DIO initialization
 \***********************************************************************/
 
-extern bool HAL_checkDIOPort(uint8_t port);
-extern uint8_t HAL_initializeDIOPort(uint8_t port, uint8_t dir);
-extern void HAL_freeDIOPort(uint8_t portHandle);
+bool HAL_checkDIOPort(uint8_t port);
+uint8_t HAL_initializeDIOPort(uint8_t port, uint8_t dir);
+void HAL_freeDIOPort(uint8_t portHandle);
 
 /***********************************************************************\
  * DIO data io
 \***********************************************************************/
 
-extern uint8_t HAL_getDIO(uint8_t portHandle);
-extern void HAL_setDIO(uint8_t portHandle, uint8_t value);
-extern void HAL_pulseOutDIO(uint8_t portHandle, float ms);
+uint8_t HAL_getDIO(uint8_t portHandle);
+void HAL_setDIO(uint8_t portHandle, uint8_t value);
+void HAL_pulseOutDIO(uint8_t portHandle, float pulseLength);
 
 } /* namespace hal */
 
